@@ -31,10 +31,15 @@ namespace UrlLookupApi.Controllers
         }
 
         [HttpGet]
-        public async Task<dynamic> Get([FromQuery] UrlLookupRequest lookupRequest)
+        public async Task<IActionResult> Get([FromQuery] UrlLookupRequest lookupRequest)
         {
             _logger.LogDebug("Request made to UrlLookup/ w/ Url={url} and Services={services}",
                 lookupRequest.IpOrDomain, string.Join(", ", lookupRequest.Services));
+
+            if (!UrlValidator.IsValidIpOrDomain(lookupRequest.IpOrDomain))
+            {
+                return new BadRequestResult();
+            }
 
             var jobs = GetJobsToRun(lookupRequest);
             var results = await Task.WhenAll(jobs);
@@ -46,7 +51,7 @@ namespace UrlLookupApi.Controllers
                 Results = serviceResults
             };
 
-            return response;
+            return new JsonResult(response);
         }
 
         private static async Task<Dictionary<ServiceType, dynamic>> BuildResponseAsync(JobTypeWithResponse[] responses)
@@ -62,13 +67,15 @@ namespace UrlLookupApi.Controllers
             return result;
         }
 
-        private IEnumerable<Task<JobTypeWithResponse>> GetJobsToRun(UrlLookupRequest lookupRequest) =>
-            lookupRequest.Services.Select(service => RequestDataAsync(lookupRequest.IpOrDomain, service));
+        private IEnumerable<Task<JobTypeWithResponse>> GetJobsToRun(UrlLookupRequest lookupRequest)
+        {
+            var requestType = UrlValidator.IsIpAddress(lookupRequest.IpOrDomain) ? "ipaddress" : "domain";
+            return lookupRequest.Services.Select(service => RequestDataAsync(lookupRequest.IpOrDomain, service, requestType));
+        }
 
-        private async Task<JobTypeWithResponse> RequestDataAsync(string ipOrDomain, ServiceType serviceType)
+        private async Task<JobTypeWithResponse> RequestDataAsync(string ipOrDomain, ServiceType serviceType, string requestType)
         {
             var funcBaseUrl = _configuration.GetValue<string>("FunctionBaseUrl");
-            var requestType = IPAddressValidator.IsIpAddress(ipOrDomain) ? "ipaddress" : "domain";
 
             _logger.LogDebug("Request made to {Service}", serviceType);
             var responseMessage = await _httpClient.GetAsync($"{funcBaseUrl}{serviceType}?ipOrDomain={ipOrDomain}&requestType={requestType}");
