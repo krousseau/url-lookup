@@ -54,14 +54,14 @@ namespace UrlLookupApi.Controllers
             return new JsonResult(response);
         }
 
-        private static async Task<Dictionary<ServiceType, dynamic>> BuildResponseAsync(JobTypeWithResponse[] responses)
+        private static async Task<Dictionary<string, dynamic>> BuildResponseAsync(JobTypeWithResponse[] responses)
         {
-            var result = new Dictionary<ServiceType, dynamic>();
+            var result = new Dictionary<string, dynamic>();
 
             foreach (var resp in responses)
             {
                 var respStr = await resp.Response.Content.ReadAsStringAsync();
-                result.Add(resp.Service, JsonSerializer.Deserialize<dynamic>(respStr));
+                result.Add(resp.Service.ToString().ToLower(), JsonSerializer.Deserialize<dynamic>(respStr));
             }
 
             return result;
