@@ -61,7 +61,14 @@ namespace UrlLookupApi.Controllers
             foreach (var resp in responses)
             {
                 var respStr = await resp.Response.Content.ReadAsStringAsync();
-                result.Add(resp.Service.ToString().ToLower(), JsonSerializer.Deserialize<dynamic>(respStr));
+                if (!string.IsNullOrEmpty(respStr))
+                {
+                    result.Add(resp.Service.ToString().ToLower(), JsonSerializer.Deserialize<dynamic>(respStr));
+                }
+                else
+                {
+                    result.Add(resp.Service.ToString().ToLower(), "Failed to request to that service");
+                }
             }
 
             return result;

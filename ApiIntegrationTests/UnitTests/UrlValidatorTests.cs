@@ -35,6 +35,13 @@ namespace ApiTests.UnitTests
         }
 
         [TestMethod]
+        public void IsDomain_ReturnsFalse_WhenHttpIncluded()
+        {
+            var isValid = UrlValidator.IsDomain("http://foo.com");
+            Assert.IsFalse(isValid);
+        }
+
+        [TestMethod]
         public void IsIpAddress_ReturnsTrue_ForValidIpAddress()
         {
             var isValid = UrlValidator.IsIpAddress("192.168.2.3");

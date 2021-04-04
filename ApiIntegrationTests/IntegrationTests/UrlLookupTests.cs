@@ -9,7 +9,7 @@ namespace ApiTests.IntegrationTests
     [TestClass]
     public class UrlLookupTests
     {
-        private const string BaseUrl = "urllookupapi.azurewebsites.net/urlLookup";
+        private const string BaseUrl = "https://urllookupapi.azurewebsites.net/urlLookup";
         private HttpClient _httpClient = new HttpClient();
 
         [TestMethod]
@@ -19,6 +19,8 @@ namespace ApiTests.IntegrationTests
             Assert.AreEqual(resp.ipOrDomain, "foo.com");
             Assert.IsNotNull(resp.results.ping);
         }
+
+        // More Tests...
 
         private async Task<dynamic> GetUrlLookupAsync(string ipOrDomain, params ServiceType[] services)
         {
