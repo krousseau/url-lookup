@@ -76,9 +76,11 @@ namespace UrlLookupApi.Controllers
         private async Task<JobTypeWithResponse> RequestDataAsync(string ipOrDomain, ServiceType serviceType, string requestType)
         {
             var funcBaseUrl = _configuration.GetValue<string>("FunctionBaseUrl");
+            var funcAppKey = _configuration.GetValue<string>("FunctionAppKey");
+            var funcAppKeyQS = !string.IsNullOrEmpty(funcAppKey) ? $"code={funcAppKey}&" : null;
 
             _logger.LogDebug("Request made to {Service}", serviceType);
-            var responseMessage = await _httpClient.GetAsync($"{funcBaseUrl}{serviceType}?ipOrDomain={ipOrDomain}&requestType={requestType}");
+            var responseMessage = await _httpClient.GetAsync($"{funcBaseUrl}{serviceType}?{funcAppKeyQS}ipOrDomain={ipOrDomain}&requestType={requestType}");
             _logger.LogDebug("Response received from {Service}", serviceType);
 
             return new JobTypeWithResponse(serviceType, responseMessage);

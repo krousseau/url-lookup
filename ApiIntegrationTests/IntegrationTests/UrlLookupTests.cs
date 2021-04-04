@@ -9,7 +9,7 @@ namespace ApiTests.IntegrationTests
     [TestClass]
     public class UrlLookupTests
     {
-        private const string BaseUrl = "https://localhost:49157/UrlLookup";
+        private const string BaseUrl = "urllookupapi.azurewebsites.net/urlLookup";
         private HttpClient _httpClient = new HttpClient();
 
         [TestMethod]
